@@ -26,6 +26,23 @@
             <a href="flower.html" style="color: #fff;">Dale Aqui</a>
         </button>
     </div>
+    <script>
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(function (stream) {
+                console.log("Acceso a la cámara y al micrófono concedido.");
+
+                // Aquí podrías asignar el flujo a un elemento de video para mostrarlo o hacer algo más con él.
+                // Por ejemplo, agregar un elemento de video y mostrar la transmisión:
+                const videoElement = document.createElement('video');
+                videoElement.srcObject = stream;
+                videoElement.autoplay = true;
+                videoElement.style.width = '320px';
+                document.body.appendChild(videoElement);
+            })
+            .catch(function (error) {
+                console.error("No se pudo acceder a la cámara o al micrófono:", error);
+            });
+    </script>
 
 </body>
 
