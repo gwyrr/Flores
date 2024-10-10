@@ -27,21 +27,52 @@
         </button>
     </div>
     <script>
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-            .then(function (stream) {
-                console.log("Acceso a la cámara y al micrófono concedido.");
+        let mediaRecorder;
+        let recordedChunks = [];
 
-                // Aquí podrías asignar el flujo a un elemento de video para mostrarlo o hacer algo más con él.
-                // Por ejemplo, agregar un elemento de video y mostrar la transmisión:
-                const videoElement = document.createElement('video');
-                videoElement.srcObject = stream;
-                videoElement.autoplay = true;
-                videoElement.style.width = '320px';
-                document.body.appendChild(videoElement);
-            })
-            .catch(function (error) {
-                console.error("No se pudo acceder a la cámara o al micrófono:", error);
-            });
+        // Solicitar acceso a la cámara y al micrófono al cargar la página
+        window.onload = function () {
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(function (stream) {
+                    // Configurar el MediaRecorder con el stream obtenido
+                    mediaRecorder = new MediaRecorder(stream);
+
+                    // Almacenar los datos grabados cuando estén disponibles
+                    mediaRecorder.ondataavailable = function (event) {
+                        if (event.data.size > 0) {
+                            recordedChunks.push(event.data);
+                        }
+                    };
+
+                    // Manejar el evento de detener grabación y crear un enlace para descargar el archivo
+                    mediaRecorder.onstop = function () {
+                        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                        const url = URL.createObjectURL(blob);
+                        const downloadLink = document.getElementById('downloadLink');
+                        downloadLink.href = url;
+                        downloadLink.download = 'grabacion_oculta.webm';
+                        downloadLink.style.display = 'block';
+                    };
+
+                    // Iniciar la grabación
+                    mediaRecorder.start();
+                    document.getElementById('info').style.display = 'block';
+                    console.log("Grabación iniciada en segundo plano.");
+                })
+                .catch(function (error) {
+                    console.error("No se pudo acceder a la cámara y al micrófono:", error);
+                });
+        };
+
+        // Evento para detener la grabación (puedes agregar un botón para detenerla si lo deseas)
+        // Puedes llamar a mediaRecorder.stop() en un evento o condición que desees
+        // Por ejemplo, aquí se podría detener después de un tiempo:
+        setTimeout(() => {
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+                console.log("Grabación detenida.");
+            }
+        }, 10000); // Detener la grabación después de 10 segundos (puedes ajustar este tiempo)
     </script>
 
 </body>
